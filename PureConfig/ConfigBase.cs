@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 
 namespace PureConfig;
 
@@ -66,27 +66,42 @@ public abstract class ConfigBase : INotifyPropertyChanged
 
     #endregion
 
-    #region Serialization
-
-    [JsonIgnore]
-    public virtual IConfigSerializer? Serializer { get; set; }
-
-    public virtual string? Serialize()
+    /// <summary>
+    /// Serializes current instance of config using provided config serializer.
+    /// </summary>
+    /// <param name="serializer">Serializer implementation that would be used to serialize this config instance.</param>
+    /// <returns>Serialized string or <see langword="null"/>.</returns>
+    public virtual string? Serialize(IConfigSerializer serializer)
     {
-        return Serializer?.Serialize(this);
+        ArgumentNullException.ThrowIfNull(serializer);
+        return serializer.Serialize(this);
     }
 
-    #endregion
-
-    [JsonIgnore]
-    public virtual IConfigDeserializer? Deserializer { get; set; }
-
-
-
-    protected virtual void Load(Dictionary<string, object?> propertyValues)
+    /// <summary>
+    /// Sets internal properties to the values deserialized by provided config deserializer.
+    /// </summary>
+    /// <param name="serializedConfig">Serialized config string.</param>
+    /// <param name="deserializer">Deserializer implementation that will be used to deserialize provided serialized string.</param>
+    public virtual void Load<T>(string serializedConfig, IConfigDeserializer deserializer) where T : ConfigBase
     {
-        foreach (var prop in _properties)
+        ArgumentNullException.ThrowIfNull(serializedConfig);
+        ArgumentNullException.ThrowIfNull(deserializer);
+        Load(deserializer.Deserialize<T>(serializedConfig));
+    }
+
+    /// <summary>
+    /// Sets internal properties to the values from provided dictionary.
+    /// </summary>
+    /// <param name="propertyValues">Dictionary of property names and their values.</param>
+    protected virtual void Load(IDictionary<string, object?> propertyValues)
+    {
+        ArgumentNullException.ThrowIfNull(propertyValues);
+
+        foreach (var prop in propertyValues)
         {
+            if (this.GetType().GetProperty(prop.Key) is null)
+                continue; // Property is not found on this config class.
+
             if (propertyValues.TryGetValue(prop.Key, out object? value))
                 _properties[prop.Key] = value;
         }

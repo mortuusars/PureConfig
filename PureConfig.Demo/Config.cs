@@ -8,12 +8,17 @@ internal class Config : ConfigBase
     public Config(Action<string> propertyChangedPrinter)
     {
         PropertyChanged += (s, e) => propertyChangedPrinter.Invoke(
-            $"{e.PropertyName} is changed to {this.GetType().GetProperty(e.PropertyName ?? String.Empty)?.GetValue(this)}.");
+            $"{e.PropertyName} is changed to {this.GetType().GetProperty(e.PropertyName ?? string.Empty)?.GetValue(this)}.");
     }
 
-    public void Load()
+    public string? Serialize()
     {
-        var values = new JsonConfigDeserializer().Deserialize<Config>(Serialize()!);
+        return new JsonConfigSerializer(new System.Text.Json.JsonSerializerOptions() { WriteIndented = true }).Serialize(this);
+    }
+
+    public void Load(string json)
+    {
+        var values = new JsonConfigDeserializer().Deserialize<Config>(json);
         Load(values);
     }
 }

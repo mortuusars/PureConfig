@@ -10,12 +10,9 @@ public class SerializedTests
     public void ConfigShouldSerializeToJsonString()
     {
         _config.Number = 42;
-        _config.Serializer = new JsonConfigSerializer();
-
-        string? json = _config.Serialize();
+        string? json = _config.Serialize(new JsonConfigSerializer());
 
         Assert.NotNull(json);
         Assert.Contains("\"Number\":42", json);
     }
-
 }

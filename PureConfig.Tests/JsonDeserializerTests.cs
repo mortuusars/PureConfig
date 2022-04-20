@@ -10,15 +10,10 @@ public class JsonDeserializerTests
     public void DeserializeShouldLoadAllProperties()
     {
         TestConfig config = new();
-        config.Serializer = new JsonConfigSerializer();
-        string json = config.Serialize()!;
+        string json = config.Serialize(new JsonConfigSerializer())!;
         var dictionary = new JsonConfigDeserializer().Deserialize<TestConfig>(json);
 
-        // Do not count properties with JsonIgnore attribute:
-        var properties = config.GetType().GetProperties()
-            .Where(p => !p.CustomAttributes.Any(a => a.AttributeType == typeof(JsonIgnoreAttribute)));
-
-        Assert.Equal(properties.Count(), dictionary.Count);
+        Assert.Equal(config.GetType().GetProperties().Length, dictionary.Count);
 
         foreach (var item in dictionary)
         {

@@ -6,17 +6,17 @@ using System.Text.Json;
 
 namespace PureConfig;
 
-public class JsonConfigDeserializer
+public class JsonConfigDeserializer : IConfigDeserializer
 {
     /// <summary>
     /// Deserializes json string to a dictionary of property names and its values.
     /// </summary>
     /// <typeparam name="T">Type of config.</typeparam>
-    /// <param name="json">Serialized config json string.</param>
+    /// <param name="serializedString">Serialized config json string.</param>
     /// <exception cref="JsonException"/>
-    public Dictionary<string, object?> Deserialize<T>(string json) where T : ConfigBase
+    public Dictionary<string, object?> Deserialize<T>(string serializedString) where T : ConfigBase
     {
-        ArgumentNullException.ThrowIfNull(json);
+        ArgumentNullException.ThrowIfNull(serializedString);
 
         Dictionary<string, object?> result = new();
 
@@ -24,7 +24,7 @@ public class JsonConfigDeserializer
         if (configProperties.Length == 0)
             return result;
 
-        using (var document = JsonDocument.Parse(json))
+        using (var document = JsonDocument.Parse(serializedString))
         {
             foreach (var jsonElement in document.RootElement.EnumerateObject())
             {
