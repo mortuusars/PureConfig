@@ -11,6 +11,11 @@ internal class Config : ConfigBase
             $"{e.PropertyName} is changed to {this.GetType().GetProperty(e.PropertyName ?? string.Empty)?.GetValue(this)}.");
     }
 
+    public Config()
+    {
+
+    }
+
     public string? Serialize()
     {
         return new JsonConfigSerializer(new System.Text.Json.JsonSerializerOptions() { WriteIndented = true }).Serialize(this);
@@ -19,6 +24,6 @@ internal class Config : ConfigBase
     public void Load(string json)
     {
         var values = new JsonConfigDeserializer().Deserialize<Config>(json);
-        Load(values);
+        SetProperties(values);
     }
 }

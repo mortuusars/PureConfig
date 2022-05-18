@@ -21,4 +21,14 @@ public class JsonDeserializerTests
             Assert.Equal(item.Value, value);
         }
     }
+
+    [Fact]
+    public void DeserializerShouldSkipPropertyThatItCouldntDeserialize()
+    {
+        string json = "{\"Number\":-1,\"String\":[]}";
+        var deserializer = new JsonConfigDeserializer();
+        var dictionary = deserializer.Deserialize<TestConfig>(json);
+
+        Assert.Equal(1, dictionary.Count);
+    }
 }

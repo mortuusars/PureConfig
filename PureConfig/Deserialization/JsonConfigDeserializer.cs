@@ -6,6 +6,10 @@ using System.Text.Json;
 
 namespace PureConfig;
 
+/// <summary>
+/// Provides the ability to deserializes json string to the dictionary of properties.<br></br>
+/// Properties deserialized one by one - if one of the property fails to deserialize, it will be skipped.
+/// </summary>
 public class JsonConfigDeserializer : IConfigDeserializer
 {
     /// <summary>
@@ -30,7 +34,11 @@ public class JsonConfigDeserializer : IConfigDeserializer
             {
                 try
                 {
-                    Type propertyType = configProperties.First(p => p.Name.Equals(jsonElement.Name)).PropertyType;
+                    Type? propertyType = configProperties.FirstOrDefault(p => p.Name.Equals(jsonElement.Name))?.PropertyType;
+
+                    if (propertyType is null)
+                        continue; // T (config) has no property that matches current json element.
+
                     object? deserializedProperty = JsonSerializer.Deserialize(jsonElement.Value.GetRawText(), propertyType);
                     result.Add(jsonElement.Name, deserializedProperty);
                 }

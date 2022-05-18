@@ -6,21 +6,22 @@ using System.Runtime.CompilerServices;
 
 namespace PureConfig;
 
+/// <summary>
+/// Base class for configs.<br></br>
+/// Provides methods for setting and retrieving property values (<see cref="GetValue{T}(T, string?)"/>, <see cref="SetValue{T}(T, string?)"/>)<br></br>
+/// and loading property values from value dictionary (<see cref="SetProperties(IDictionary{string, object?})"/>).<br></br><br></br>
+/// Implements <see cref="INotifyPropertyChanged"/> to allow monitoring config property changes.
+/// </summary>
 public abstract class ConfigBase : INotifyPropertyChanged
 {
-    #region PropertyChanged
-
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 
-    #endregion
-
-    #region Properties
-
+    /// <summary>
+    /// Stores properties and their values.
+    /// </summary>
     private readonly Dictionary<string, object?> _properties = new();
 
     /// <summary>
@@ -41,7 +42,6 @@ public abstract class ConfigBase : INotifyPropertyChanged
             return (T)value!;
         
         return defaultValue;
-
     }
 
     /// <summary>
@@ -64,8 +64,6 @@ public abstract class ConfigBase : INotifyPropertyChanged
         OnPropertyChanged(propertyName);
     }
 
-    #endregion
-
     /// <summary>
     /// Serializes current instance of config using provided config serializer.
     /// </summary>
@@ -78,7 +76,7 @@ public abstract class ConfigBase : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Sets internal properties to the values deserialized by provided config deserializer.
+    /// Sets internal properties to the values deserialized by specified config deserializer.
     /// </summary>
     /// <param name="serializedConfig">Serialized config string.</param>
     /// <param name="deserializer">Deserializer implementation that will be used to deserialize provided serialized string.</param>
@@ -86,17 +84,17 @@ public abstract class ConfigBase : INotifyPropertyChanged
     {
         ArgumentNullException.ThrowIfNull(serializedConfig);
         ArgumentNullException.ThrowIfNull(deserializer);
-        Load(deserializer.Deserialize<T>(serializedConfig));
+        SetProperties(deserializer.Deserialize<T>(serializedConfig));
     }
 
     /// <summary>
-    /// Sets internal properties to the values from provided dictionary.
+    /// Sets values of the internal properties from provided dictionary. <see cref="PropertyChanged"/> will not be invoked.<br></br>
+    /// Properties that exist in the dictionary but not found on the current config class will be skipped.
     /// </summary>
     /// <param name="propertyValues">Dictionary of property names and their values.</param>
-    protected virtual void Load(IDictionary<string, object?> propertyValues)
+    protected virtual void SetProperties(IDictionary<string, object?> propertyValues)
     {
         ArgumentNullException.ThrowIfNull(propertyValues);
-
         foreach (var prop in propertyValues)
         {
             if (this.GetType().GetProperty(prop.Key) is null)

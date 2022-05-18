@@ -8,10 +8,10 @@ namespace PureConfig;
 public interface IConfigDeserializer
 {
     /// <summary>
-    /// Deserializes string to the instance of specified config type.
+    /// Deserializes string to the dictionary of property names and their values.
     /// </summary>
     /// <typeparam name="T">Type of config.</typeparam>
     /// <param name="serializedString">String to deserialize.</param>
-    /// <returns>Instance of deserialized config.</returns>
+    /// <returns>Dictionary PropertyNames and its deserialized Values.</returns>
     Dictionary<string, object?> Deserialize<T>(string serializedString) where T : ConfigBase;
 }
