@@ -69,6 +69,7 @@ public abstract class ConfigBase : INotifyPropertyChanged
     /// </summary>
     /// <param name="serializer">Serializer implementation that would be used to serialize this config instance.</param>
     /// <returns>Serialized string or <see langword="null"/>.</returns>
+    /// <exception cref="ArgumentNullException">Serializer is null.</exception>
     public virtual string? Serialize(IConfigSerializer serializer)
     {
         ArgumentNullException.ThrowIfNull(serializer);

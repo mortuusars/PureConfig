@@ -1,4 +1,6 @@
-﻿namespace PureConfig.Demo;
+﻿using System.Text.Json;
+
+namespace PureConfig.Demo;
 
 internal class Config : ConfigBase
 {
@@ -18,12 +20,12 @@ internal class Config : ConfigBase
 
     public string? Serialize()
     {
-        return new JsonConfigSerializer(new System.Text.Json.JsonSerializerOptions() { WriteIndented = true }).Serialize(this);
+        return base.Serialize(new JsonConfigSerializer(new JsonSerializerOptions() { WriteIndented = true }));
     }
 
     public void Load(string json)
     {
-        var values = new JsonConfigDeserializer().Deserialize<Config>(json);
-        SetProperties(values);
+        var properties = new JsonConfigDeserializer().Deserialize<Config>(json);
+        SetProperties(properties);
     }
 }
